@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+
 import { Provider } from '../../providers/entities/provider.entity';
 import { Service } from '../../services/entities/service.entity';
 
@@ -15,8 +15,8 @@ export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, { eager: true })
-  user: User;
+  @Column()
+  userId: string;
 
   @ManyToOne(() => Provider, { eager: true })
   provider: Provider;

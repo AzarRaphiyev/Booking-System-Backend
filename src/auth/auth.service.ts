@@ -4,17 +4,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
-import { Role } from 'src/user/user.entity';
+import { UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -22,24 +22,19 @@ export class AuthService {
   // LOGIN
   // =========================
   async login(dto: LoginDto) {
-    const user = await this.userService.findOne({
-      where: [
-        { username: dto.username },
-        { email: dto.email },
-      ],
-    });
+    const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('İstifadəçi tapılmadı');
     }
 
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Şifrə yalnışdır');
     }
 
     const payload = {
-      userId: user.id,
+      sub: user._id,
       role: user.role,
     };
 
@@ -47,8 +42,8 @@ export class AuthService {
 
     return {
       user: {
-        id: user.id,
-        username: user.username,
+        id: user._id,
+        name: user.name,
         email: user.email,
         role: user.role,
       },
@@ -60,24 +55,23 @@ export class AuthService {
   // REGISTER
   // =========================
   async register(dto: RegisterDto) {
-    const existingUser = await this.userService.findOne({
-      where: [
-        { email: dto.email },
-        { username: dto.username },
-      ],
-    });
+    const existingUser = await this.usersService.findByEmail(dto.email);
 
     if (existingUser) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('Bu email və ya istifadəçi adı artıq mövcuddur');
     }
 
-    const user = await this.userService.create({
-      ...dto,
-      role: [Role.USER],
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.usersService.createUser({
+      name: dto.name,
+      email: dto.email,
+      password: hashedPassword,
+      role: UserRole.CUSTOMER, // Force CUSTOMER role
     });
 
     const payload = {
-      userId: user.id,
+      sub: user._id,
       role: user.role,
     };
 
@@ -85,8 +79,8 @@ export class AuthService {
 
     return {
       user: {
-        id: user.id,
-        username: user.username,
+        id: user._id,
+        name: user.name,
         email: user.email,
         role: user.role,
       },

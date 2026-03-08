@@ -3,6 +3,12 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
+export enum UserRole {
+  CUSTOMER = 'customer',
+  WORKER = 'worker',
+  ADMIN = 'admin',
+}
+
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true })
@@ -14,7 +20,7 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ default: 'customer', enum: ['customer', 'provider', 'admin'] })
+  @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER })
   role: string;
 }
 

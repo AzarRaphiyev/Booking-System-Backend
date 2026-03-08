@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Appointment, AppointmentStatus } from './entities/appointment.entity';
-import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 import { Provider } from '../providers/entities/provider.entity';
 import { Service } from '../services/entities/service.entity';
 
@@ -11,8 +11,7 @@ export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly usersService: UsersService,
     @InjectRepository(Provider)
     private readonly providerRepository: Repository<Provider>,
     @InjectRepository(Service)
@@ -20,19 +19,19 @@ export class AppointmentsService {
   ) {}
 
   async createAppointmentByIds(
-    userId: number,
+    userId: string,
     providerId: number,
     serviceId: number,
     startTime: Date,
     endTime: Date,
   ) {
     // fetch relational objects
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.usersService.findOne({ _id: userId });
     const provider = await this.providerRepository.findOne({ where: { id: providerId }, relations: ['services'] });
     const service = await this.serviceRepository.findOne({ where: { id: serviceId } });
 
     if (!user || !provider || !service) {
-      throw new BadRequestException('Invalid user, provider, or service');
+      throw new BadRequestException('İstifadəçi, provayder və ya xidmət yalnışdır');
     }
 
     // double booking check
@@ -44,11 +43,11 @@ export class AppointmentsService {
     });
 
     if (overlapping) {
-      throw new BadRequestException('This time slot is already booked.');
+      throw new BadRequestException('Bu vaxt artıq rezervasiya edilib.');
     }
 
     const appointment = this.appointmentRepository.create({
-      user,
+      userId,
       provider,
       service,
       startTime,

@@ -7,7 +7,7 @@ export class AppointmentsController {
 
   @Post()
   async createAppointment(@Body() body: {
-    userId: number;
+    userId: string;
     providerId: number;
     serviceId: number;
     startTime: string;
