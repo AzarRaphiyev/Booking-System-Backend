@@ -1,7 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-
-export type UserDocument = User & Document;
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export enum UserRole {
   CUSTOMER = 'customer',
@@ -9,19 +6,26 @@ export enum UserRole {
   ADMIN = 'admin',
 }
 
-@Schema({ timestamps: true })
+@Entity('users')
 export class User {
-  @Prop({ required: true })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   name: string;
 
-  @Prop({ required: true, unique: true })
+  @Column({ unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Column()
   password: string;
 
-  @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER })
-  role: string;
-}
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
+  role: UserRole;
 
-export const UserSchema = SchemaFactory.createForClass(User);
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
