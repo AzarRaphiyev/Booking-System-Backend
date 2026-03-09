@@ -8,6 +8,7 @@ import { ProvidersModule } from './providers/providers.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
+import { AvailabilityModule } from './availability/availability.module';
 
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,10 +22,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 TypeOrmModule.forRoot({
   type: 'postgres',
   host: 'localhost',
-  port: 5432,
+  port: 5433,
   username: 'postgres',
-  password: 'azer2233',
-  database: 'BeautySalon',
+  password: 'Orxan1602?',
+  database: 'booking',
   autoLoadEntities: true,
   synchronize: true,
 }),
@@ -36,6 +37,7 @@ TypeOrmModule.forRoot({
     AppointmentsModule,
     ReviewsModule,
     AuthModule,
+    AvailabilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

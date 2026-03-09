@@ -9,8 +9,14 @@ export class Provider {
   @Column()
   name: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   email: string;
+
+  @Column({ nullable: true })
+  title: string;
+
+  @Column({ nullable: true })
+  profileImageUrl: string;
 
   // İş saatları JSON şəklində saxlaya bilərik (start və end time)
   // Məs: [{"day": "Monday", "start": "09:00", "end": "18:00"}, ...]

@@ -30,6 +30,9 @@ export class Appointment {
   @Column('timestamp')
   endTime: Date;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  totalPrice: number;
+
   @Column({ type: 'enum', enum: AppointmentStatus, default: AppointmentStatus.PENDING })
   status: AppointmentStatus;
 

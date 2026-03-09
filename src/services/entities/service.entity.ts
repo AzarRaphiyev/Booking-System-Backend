@@ -11,6 +11,9 @@ export class Service {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ type: 'int', default: 30 })
+  durationInMinutes: number;
+
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   price: number; // Xidmətin qiyməti
 
